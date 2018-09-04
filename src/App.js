@@ -31,9 +31,9 @@ class App extends Component {
   }
   
   handleRequestPicture = () => {
-    console.log('PUBLISH', 'mqtt/camera');
+    console.log('PUBLISH', 'mqtt/take-picture');
     this.setState({ requestingImage: true })
-    client.publish('mqtt/camera', 'Give me picture pls');
+    client.publish('mqtt/take-picture', 'Take a picture please!');
   }
 
   render() {
