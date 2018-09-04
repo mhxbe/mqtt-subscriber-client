@@ -5,12 +5,13 @@ import './App.css';
 
 const client = mqtt.connect('ws://192.168.0.135', {
   port: 3023,
-  clientId: 'image-requester',
 });
 
 class App extends Component {
   state = {
     imageUrl: '',
+    requestingImage: false,
+    date: '',
   }
   componentDidMount() {
     client.on('connect', () => {
@@ -22,13 +23,16 @@ class App extends Component {
       const blob = new Blob([arrayBufferView], { type: "image/jpeg" });
       const urlCreator = window.URL || window.webkitURL;
       this.setState({
-        imageUrl: urlCreator.createObjectURL(blob)
+        imageUrl: urlCreator.createObjectURL(blob),
+        requestingImage: false,
+        date: new Date().toISOString().substring(11, 19),
       })
     });
   }
   
   handleRequestPicture = () => {
     console.log('PUBLISH', 'mqtt/camera');
+    this.setState({ requestingImage: true })
     client.publish('mqtt/camera', 'Give me picture pls');
   }
 
@@ -36,13 +40,22 @@ class App extends Component {
     return (
       <div className="App">
         <header className="App-header">
-          <img src={logo} className="App-logo" alt="logo" />
           <h1 className="App-title">MQTT Client Subscriber</h1>
         </header>
         <p className="App-intro">
           To get request a picture, click the following button: <button onClick={this.handleRequestPicture}>Request picture</button>
         </p>
-        <img src={this.state.imageUrl} />
+        { this.state.requestingImage
+          ? <img src={logo} className="App-logo" alt="spinner" />
+          : (
+            <React.Fragment>
+              { this.state.imageUrl &&
+                <img class="raspistill-image" src={this.state.imageUrl} alt="raspistill snap" />
+              }
+              <p>{this.state.date}</p>
+            </React.Fragment>
+          )
+        }
       </div>
     );
   }
