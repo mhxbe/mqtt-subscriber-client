@@ -2,6 +2,7 @@
   "name": "mqtt-subscriber-client",
   "version": "0.1.0",
   "private": true,
+  "author": "Mike Henderyckx",
   "dependencies": {
     "mqtt": "^2.18.8",
     "react": "^16.4.2",
