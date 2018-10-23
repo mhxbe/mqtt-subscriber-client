@@ -35,7 +35,7 @@ html {
 @media screen and (max-width: 600px) {
   .content-wrapper {
     flex-direction: column;
-    padding: 0 20px;
+    padding: 20px;
   }
 }
 
@@ -90,6 +90,10 @@ html {
   bottom: 10px;
   position: absolute;
   right: 10px;
+}
+
+.image {
+  width: 100%;
 }
 
 @keyframes App-logo-spin {

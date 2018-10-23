@@ -13,7 +13,9 @@ class App extends Component {
     isAdmin: false,
     motionDetected: false,
     motionDetectedDate: '',
-    requestingImage: false,
+    picture: '',
+    pictureTakenDate: '',
+    requestingPicture: false,
     temperature: 0,
     temperatureHumidityDate: '',
   }
@@ -21,13 +23,14 @@ class App extends Component {
     client.on('connect', () => {
       client.subscribe("jidoka/office/temperature-humidity");
       client.subscribe("jidoka/office/motion");
+      client.subscribe("jidoka/office/camera");
     })
     client.on('message', (topic, message, packet) => {
       console.log(`Incoming message: [${topic}]`);
-      const messageValue = JSON.parse(new TextDecoder("utf-8").decode(message));
+      const messageValue = new TextDecoder("utf-8").decode(message)
       switch(topic) {
         case 'jidoka/office/temperature-humidity':
-          const { temperature, humidity } = messageValue;
+          const { temperature, humidity } = JSON.parse(messageValue)
           this.setState({
             requestingImage: false,
             temperature,
@@ -37,10 +40,19 @@ class App extends Component {
           break;
 
         case 'jidoka/office/motion':
-          const { date, value } = messageValue;
+          const { date, value } = JSON.parse(messageValue)
           this.setState({
             motionDetected: !!value,
             motionDetectedDate: new Date(date).toISOString(),
+          })
+          break;
+
+        case 'jidoka/office/camera':
+          const blob = new Blob([message], { type: "image/jpeg" });
+          const urlCreator = window.URL || window.webkitURL;
+          this.setState({
+            picture: urlCreator.createObjectURL(blob),
+            pictureTakenDate: new Date().toISOString(),
           })
           break;
         
@@ -54,8 +66,12 @@ class App extends Component {
   
   handleRequestTemperature = () => {
     console.log('PUBLISH', 'jidoka/office/temperature-humidity/get');
-    this.setState({ requestingImage: true })
     client.publish("jidoka/office/temperature-humidity/get", "Read temperature & humidity please!");
+  }
+
+  handleRequestPicture = () => {
+    console.log('PUBLISH', 'jidoka/office/take-picture');
+    client.publish("jidoka/office/take-picture", "Take picture please!");
   }
 
   render() {
@@ -97,7 +113,27 @@ class App extends Component {
               </button>}
           </div>
 
-          <div className="card">Camera</div>
+          <div className="card">
+            { this.state.picture
+                ? <img className="image" src={this.state.picture} />
+                : (
+                  <div>
+                    <span>Camera</span>
+                    <div className="icon">
+                      <i className="fas fa-camera"></i>
+                    </div>
+                  </div>
+                )
+            }
+            
+            
+            <span className="updated-at">
+              <TimeAgo date={this.state.pictureTakenDate} />
+            </span>
+            {this.state.isAdmin && <button className="refresh-button" onClick={this.handleRequestPicture}>
+                Snap!
+              </button>}
+          </div>
           <div className={`card ${this.state.motionDetected && 'red'}`}>
             <span>
               { this.state.motionDetected
