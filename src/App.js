@@ -1,6 +1,5 @@
 import React, { Component } from 'react';
 import mqtt from 'mqtt';
-import logo from './logo.svg';
 import './App.css';
 
 const client = mqtt.connect('ws://192.168.0.135', {
@@ -9,53 +8,74 @@ const client = mqtt.connect('ws://192.168.0.135', {
 
 class App extends Component {
   state = {
-    imageUrl: '',
+    isAdmin: false,
+    temperature: 0,
+    humidity: 0,
     requestingImage: false,
     date: '',
   }
   componentDidMount() {
     client.on('connect', () => {
-      client.subscribe('mqtt/picture-taken');
+      client.subscribe('office/all');
     })
     client.on('message', (topic, message, packet) => {
       console.log(`[${topic}]`);
-      const arrayBufferView = new Uint8Array(message);
-      const blob = new Blob([arrayBufferView], { type: "image/jpeg" });
-      const urlCreator = window.URL || window.webkitURL;
+      const { temperature, humidity } = JSON.parse(new TextDecoder("utf-8").decode(message));
+      console.log('TEMP', temperature);
+      console.log('HUMID', humidity);
       this.setState({
-        imageUrl: urlCreator.createObjectURL(blob),
         requestingImage: false,
+        temperature,
+        humidity,
         date: new Date().toISOString().substring(11, 19),
       })
     });
+
+    this.setState({
+      isAdmin: !!~window.location.search.indexOf('admin')
+    })
   }
   
-  handleRequestPicture = () => {
-    console.log('PUBLISH', 'mqtt/take-picture');
+  handleRequestTemperature = () => {
+    console.log('PUBLISH', 'office/all/get');
     this.setState({ requestingImage: true })
-    client.publish('mqtt/take-picture', 'Take a picture please!');
+    client.publish('office/all/get', 'Read temperature & humidity please!');
   }
 
   render() {
     return (
       <div className="App">
         <header className="App-header">
-          <h1 className="App-title">MQTT Client Subscriber</h1>
+          <h1 className="App-title">Jidoka Dashboard</h1>
         </header>
-        <p className="App-intro">
-          To get request a picture, click the following button: <button onClick={this.handleRequestPicture}>Request picture</button>
-        </p>
-        { this.state.requestingImage
-          ? <img src={logo} className="App-logo" alt="spinner" />
-          : (
-            <React.Fragment>
-              { this.state.imageUrl &&
-                <img class="raspistill-image" src={this.state.imageUrl} alt="raspistill snap" />
-              }
-              <p>{this.state.date}</p>
-            </React.Fragment>
-          )
-        }
+
+        <section className="content-wrapper">
+          <div className="card">
+            <span>Temperatuur</span>
+            <div className="icon">
+              <i className="fas fa-thermometer-half"></i>
+            </div>
+            <span className="sensor-value">{this.state.temperature.toFixed(1)}°</span>
+            { this.state.isAdmin &&
+              <button className="refresh-button" onClick={this.handleRequestTemperature}>Vernieuw</button>
+            }
+          </div>
+
+          <div className="card">
+            <span>Vochtigheid</span>
+            <div className="icon">
+              <i className="fas fa-tint"></i>
+            </div>
+            <span className="sensor-value">{this.state.humidity.toFixed(1)}%</span>
+          </div>
+
+          <div className="card">
+            Camera
+          </div>
+          <div className="card">
+            Beweging
+          </div>
+        </section>
       </div>
     );
   }

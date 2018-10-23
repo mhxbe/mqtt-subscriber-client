@@ -1,3 +1,8 @@
+html {
+  background: #edf1f4;
+  height: 100%;
+}
+
 .App {
   text-align: center;
 }
@@ -8,22 +13,73 @@
 }
 
 .App-header {
-  background-color: #222;
+  background-color: #419ac3;
   height: 60px;
   padding: 20px;
   color: white;
-}
-
-.App-title {
-  font-size: 1.5em;
-}
-
-.App-intro {
-  font-size: large;
+  font-size: 0.75em;
 }
 
 .raspistill-image {
   max-width: 100%;
+}
+
+.content-wrapper {
+  display: flex;
+  justify-content: space-evenly;
+  flex-wrap: wrap;
+  margin: 0 auto;
+  max-width: 960px;
+  padding-top: 40px;
+}
+@media screen and (max-width: 600px) {
+  .content-wrapper {
+    flex-direction: column;
+    padding: 0 20px;
+  }
+}
+
+
+.card {
+  background: #58afd6;
+  border-radius: 2px;
+  color: #36404a;
+  flex-basis: 40%;
+  font-family: 'Courier New', Courier, monospace;
+  font-size: 20px;
+  font-weight: bold;
+  margin-bottom: 20px;
+  padding: 20px;
+  position: relative;
+}
+@media screen and (max-width: 600px) {
+  .card {
+    flex-basis: 80%;
+  }
+}
+
+.icon {
+  display: block;
+  font-size: 60px;
+  margin: 20px 0;
+}
+@media screen and (max-width: 600px) {
+  .icon {
+    font-size: 50px;
+    margin: 10px 0;
+  }
+}
+
+.sensor-value {
+  display: block;
+  font-size: 34px;
+}
+
+.refresh-button {
+  position: absolute;
+  bottom: 10px;
+  right: 10px;
+
 }
 
 @keyframes App-logo-spin {
