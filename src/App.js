@@ -16,13 +16,11 @@ class App extends Component {
   }
   componentDidMount() {
     client.on('connect', () => {
-      client.subscribe('office/all');
+      client.subscribe("jidoka/office/temperature-humidity");
     })
     client.on('message', (topic, message, packet) => {
-      console.log(`[${topic}]`);
+      console.log(`Incoming message: [${topic}]`);
       const { temperature, humidity } = JSON.parse(new TextDecoder("utf-8").decode(message));
-      console.log('TEMP', temperature);
-      console.log('HUMID', humidity);
       this.setState({
         requestingImage: false,
         temperature,
@@ -37,9 +35,9 @@ class App extends Component {
   }
   
   handleRequestTemperature = () => {
-    console.log('PUBLISH', 'office/all/get');
+    console.log('PUBLISH', 'jidoka/office/temperature-humidity/get');
     this.setState({ requestingImage: true })
-    client.publish('office/all/get', 'Read temperature & humidity please!');
+    client.publish("jidoka/office/temperature-humidity/get", "Read temperature & humidity please!");
   }
 
   render() {
@@ -67,6 +65,9 @@ class App extends Component {
               <i className="fas fa-tint"></i>
             </div>
             <span className="sensor-value">{this.state.humidity.toFixed(1)}%</span>
+            { this.state.isAdmin &&
+              <button className="refresh-button" onClick={this.handleRequestTemperature}>Vernieuw</button>
+            }
           </div>
 
           <div className="card">
