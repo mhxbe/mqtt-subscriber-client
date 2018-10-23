@@ -52,6 +52,9 @@ html {
   padding: 20px;
   position: relative;
 }
+.red {
+  background: red;
+}
 @media screen and (max-width: 600px) {
   .card {
     flex-basis: 80%;
@@ -73,13 +76,20 @@ html {
 .sensor-value {
   display: block;
   font-size: 34px;
+  margin-bottom: 10px;
+}
+
+.updated-at {
+  bottom: 10px;
+  font-size: 12px;
+  left: 10px;
+  position: absolute;
 }
 
 .refresh-button {
-  position: absolute;
   bottom: 10px;
+  position: absolute;
   right: 10px;
-
 }
 
 @keyframes App-logo-spin {
